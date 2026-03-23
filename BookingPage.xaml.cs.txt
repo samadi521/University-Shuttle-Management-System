@@ -1,0 +1,47 @@
+using ShuttleTrackerApp.Models;
+using System.Net.Http.Json;
+using System.Text.Json;
+
+namespace ShuttleTrackerApp.Views;
+
+public partial class BookingPage : ContentPage
+{
+    List<Trip> trips;
+
+    public BookingPage()
+    {
+        InitializeComponent();
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        var json = await new HttpClient()
+            .GetStringAsync("http://10.0.2.2:3001/trips");
+
+        trips = JsonSerializer.Deserialize<List<Trip>>(json);
+
+        tripList.ItemsSource = trips;
+    }
+
+    private async void BookTrip_Clicked(object sender, EventArgs e)
+    {
+        var button = sender as Button;
+        var trip = (Trip)button.BindingContext;
+
+        int userId = Preferences.Get("userId", 0);
+
+        await new HttpClient().PostAsJsonAsync(
+            "http://10.0.2.2:3001/book-trip",
+            new
+            {
+                user_id = userId,
+                trip_id = trip.id
+            });
+
+        await DisplayAlert("Success", "Seat booked!", "OK");
+
+        OnAppearing(); // refresh
+    }
+}
