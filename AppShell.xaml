@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell
+    x:Class="ShuttleTrackerApp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:ShuttleTrackerApp.Views">
+
+    <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate views:LoginPage}" />
+        <ShellContent Route="AdminDashboardPage" ContentTemplate="{DataTemplate views:AdminDashboardPage}" />
+        <ShellContent Route="DriverDashboardPage" ContentTemplate="{DataTemplate views:DriverDashboardPage}" />
+    <ShellContent Route="StudentDashboardPage" ContentTemplate="{DataTemplate views:StudentDashboardPage}" />
+
+</Shell>
