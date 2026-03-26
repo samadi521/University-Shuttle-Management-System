@@ -1,0 +1,51 @@
+using ShuttleTrackerApp.Services;
+
+namespace ShuttleTrackerApp.Views;
+
+public partial class RegisterPage : ContentPage
+{
+    ApiService api = new ApiService();
+
+    public RegisterPage()
+    {
+        InitializeComponent();
+    }
+
+    private async void OnRegisterClicked(object sender, EventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(nameEntry.Text) ||
+            string.IsNullOrWhiteSpace(emailEntry.Text) ||
+            string.IsNullOrWhiteSpace(passwordEntry.Text))
+        {
+            await DisplayAlert("Error", "All fields required", "OK");
+            return;
+        }
+
+        try
+        {
+            var response = await api.Post<ApiResponse>("/auth/register", new
+            {
+                name = nameEntry.Text,
+                email = emailEntry.Text,
+                password = passwordEntry.Text
+            });
+
+            if (!string.IsNullOrEmpty(response.error))
+            {
+                await DisplayAlert("Error", response.error, "OK");
+            }
+            else
+            {
+                await DisplayAlert("Success", response.message, "OK");
+                await Navigation.PopAsync();
+            }
+
+            // go back to login
+            await Navigation.PopAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
+    }
+}
