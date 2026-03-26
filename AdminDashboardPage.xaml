@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ShuttleTrackerApp.Views.AdminDashboardPage"
+    Title="Admin Dashboard">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="20">
+
+            <!--  GENERAL NOTIFICATION -->
+            <Frame Padding="10" BackgroundColor="#E3F2FD">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Send General Notification"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+
+                    <Entry x:Name="messageEntry"
+                           Placeholder="Enter message"/>
+
+                    <Button Text="Send Notification"
+                            BackgroundColor="#1E88E5"
+                            TextColor="White"
+                            Clicked="OnSendNotification"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!--  BUS ALERT -->
+            <Frame Padding="10" BackgroundColor="#FFEBEE">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Bus Alert (Delay / Cancel)"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+
+                    <Picker x:Name="typePicker">
+                        <Picker.Items>
+                            <x:String>Delayed</x:String>
+                            <x:String>Cancelled</x:String>
+                        </Picker.Items>
+                    </Picker>
+
+                    <Entry x:Name="busIdEntry"
+                           Placeholder="Bus ID (e.g., 1)"/>
+
+                    <Button Text="Send Bus Alert"
+                            BackgroundColor="#D32F2F"
+                            TextColor="White"
+                            Clicked="OnSendBusAlert"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!--  ADD DRIVER -->
+            <Frame Padding="10" BackgroundColor="#E8F5E9">
+                <VerticalStackLayout Spacing="10">
+
+                    <Label Text="Add Driver"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+
+                    <Entry x:Name="driverNameEntry"
+                           Placeholder="Driver Name"/>
+
+                    <Entry x:Name="driverEmailEntry"
+                           Placeholder="Driver Email"/>
+
+                    <Entry x:Name="driverPasswordEntry"
+                           Placeholder="Password"
+                           IsPassword="True"/>
+
+                    <Button Text="Add Driver"
+                            BackgroundColor="#388E3C"
+                            TextColor="White"
+                            Clicked="OnAddDriverClicked"/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
