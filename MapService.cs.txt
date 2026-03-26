@@ -1,0 +1,73 @@
+﻿using Newtonsoft.Json.Linq;
+using Microsoft.Maui.Controls.Maps;
+
+namespace ShuttleTrackerApp.Services;
+
+public class MapService
+{
+    string apiKey = "AIzaSyBil_JS5xSdnRl0lsVPULEYoEIxb-Mp4fI";
+
+    public async Task<List<Location>> GetRoute(string origin, string destination)
+    {
+        var points = new List<Location>();
+
+        try
+        {
+            var client = new HttpClient();
+            string url = $"https://maps.googleapis.com/maps/api/directions/json?origin={origin}&destination={destination}&key={apiKey}";
+            var response = await client.GetStringAsync(url);
+            var json = JObject.Parse(response);
+
+            var routes = json["routes"];
+            if (routes != null && routes.HasValues)
+            {
+                var pointsToken = routes[0]?["overview_polyline"]?["points"];
+                if (pointsToken != null)
+                {
+                    points = DecodePolyline(pointsToken.ToString());
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error getting route: {ex.Message}");
+        }
+
+        return points;
+    }
+
+    private List<Location> DecodePolyline(string encoded)
+    {
+        var poly = new List<Location>();
+        int index = 0, lat = 0, lng = 0;
+
+        while (index < encoded.Length)
+        {
+            int b, shift = 0, result = 0;
+            do
+            {
+                b = encoded[index++] - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+
+            lat += ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+
+            shift = 0;
+            result = 0;
+
+            do
+            {
+                b = encoded[index++] - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+
+            lng += ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+
+            poly.Add(new Location(lat / 1E5, lng / 1E5));
+        }
+
+        return poly;
+    }
+}

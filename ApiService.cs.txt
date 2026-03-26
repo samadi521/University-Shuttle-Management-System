@@ -1,0 +1,32 @@
+﻿using System.Text;
+using Newtonsoft.Json;
+
+namespace ShuttleTrackerApp.Services;
+
+public class ApiService
+{
+    private string baseUrl = "http://10.0.2.2:3000";
+
+    public async Task<T> Post<T>(string url, object data)
+    {
+        var client = new HttpClient();
+        var json = JsonConvert.SerializeObject(data);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await client.PostAsync(baseUrl + url, content);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new Exception($"API call failed: {response.StatusCode}");
+        }
+
+        var result = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<T>(result) ?? throw new Exception("Failed to deserialize response");
+    }
+
+    public async Task<T> Get<T>(string url)
+    {
+        var client = new HttpClient();
+        var json = await client.GetStringAsync(baseUrl + url);
+        return JsonConvert.DeserializeObject<T>(json) ?? throw new Exception("Failed to deserialize response");
+    }
+}
