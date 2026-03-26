@@ -1,0 +1,112 @@
+﻿using SocketIOClient;
+using ShuttleTrackerApp.Services;
+
+namespace ShuttleTrackerApp.Views;
+
+public partial class AdminDashboardPage : ContentPage
+{
+    SocketIO? socket;
+    ApiService api = new ApiService();
+
+    public AdminDashboardPage()
+    {
+        InitializeComponent();
+        Init();
+    }
+
+    async void Init()
+    {
+        socket = SocketService.GetSocket();
+        await SocketService.ConnectAsync();
+    }
+
+    // GENERAL NOTIFICATION
+    private async void OnSendNotification(object sender, EventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(messageEntry.Text))
+        {
+            await DisplayAlert("Error", "Please enter a message", "OK");
+            return;
+        }
+
+        if (socket?.Connected == true)
+        {
+            await socket.EmitAsync("notification", new object[]
+{
+    new
+    {
+        message = messageEntry.Text
+    }
+});
+
+            await DisplayAlert("Success", "Notification sent", "OK");
+            messageEntry.Text = "";
+        }
+    }
+
+    //  BUS ALERT (DELAY / CANCEL)
+    private async void OnSendBusAlert(object sender, EventArgs e)
+    {
+        if (typePicker.SelectedItem == null ||
+            string.IsNullOrWhiteSpace(busIdEntry.Text))
+        {
+            await DisplayAlert("Error", "Select type & enter bus ID", "OK");
+            return;
+        }
+
+        string type = typePicker.SelectedItem.ToString();
+        int busId = int.Parse(busIdEntry.Text);
+
+        string message = type == "Cancelled"
+            ? $"Bus {busId} is CANCELLED ❌"
+            : $"Bus {busId} is DELAYED ⏳";
+
+        try
+        {
+            await api.Post<string>("/notify", new
+            {
+                message,
+                type,
+                bus_id = busId
+            });
+
+            await DisplayAlert("Success", "Bus alert sent", "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
+    }
+
+    //  ADD DRIVER
+    private async void OnAddDriverClicked(object sender, EventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(driverNameEntry.Text) ||
+            string.IsNullOrWhiteSpace(driverEmailEntry.Text) ||
+            string.IsNullOrWhiteSpace(driverPasswordEntry.Text))
+        {
+            await DisplayAlert("Error", "Fill all fields", "OK");
+            return;
+        }
+
+        try
+        {
+            await api.Post<string>("/add-driver", new
+            {
+                name = driverNameEntry.Text,
+                email = driverEmailEntry.Text,
+                password = driverPasswordEntry.Text
+            });
+
+            await DisplayAlert("Success", "Driver Added", "OK");
+
+            driverNameEntry.Text = "";
+            driverEmailEntry.Text = "";
+            driverPasswordEntry.Text = "";
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
+    }
+}
